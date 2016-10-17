@@ -9,31 +9,29 @@ matplotlib, pandas, and scipy, but also packages for getting data from
 
 ## Usage
 
-Build it like any other container:
+Fetch the pre-built container from [Docker hub][docker-hub-image]:
 
-```bash
-$ docker build -t <container-name> .
 ```
-
-where `<container-name>` is the label to give the built image.
+$ docker pull alexpearce/root-pandas-analysis
+```
 
 With no commands, it runs a Jupyter notebook server bound to port 8888:
 
 ```bash
-$ docker run -p 8888:8888 <container-name>
+$ docker run -p 8888:8888 alexpearce/root-pandas-analysis
 ```
 
 To interact with the container:
 
 ```bash
-$ docker run -p 8888:8888 -it <container-name> bash
+$ docker run -p 8888:8888 -it alexpearce/root-pandas-analysis bash
 ```
 
 To mount the current working directory in the container and work
 interactively:
 
 ```bash
-$ docker run -p 8888:8888 -it -v `pwd`:/work <container-name> bash
+$ docker run -p 8888:8888 -it -v `pwd`:/work alexpearce/root-pandas-analysis bash
 ```
 
 The `/work` directory in the container is the default working directory
@@ -52,8 +50,18 @@ A typical invocation of this container might look like:
     -it \
     -v `pwd`:/work \
     -e LOCAL_USER_ID=`id -u $USER` -e LOCAL_GROUP_ID=`id -g $USER` \
-    <container-name> <command to run>
+    alexpearce/root-pandas-analysis <command to run>
 ```
+
+## Building
+
+Clone this repository and build it like any other container:
+
+```bash
+$ docker build -t <container-name> .
+```
+
+where `<container-name>` is the label to give the built image.
 
 [root]: https://root.cern.ch/
 [root-numpy]: http://rootpy.github.io/root_numpy/
