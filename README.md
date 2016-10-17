@@ -66,3 +66,4 @@ where `<container-name>` is the label to give the built image.
 [root]: https://root.cern.ch/
 [root-numpy]: http://rootpy.github.io/root_numpy/
 [root-pandas]: https://github.com/ibab/root_pandas
+[docker-hub-image]: https://hub.docker.com/r/alexpearce/root-pandas-analysis/
