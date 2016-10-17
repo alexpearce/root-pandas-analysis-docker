@@ -64,14 +64,14 @@ RUN bash -c 'source activate $CONDA_DEFAULT_ENV \
     && pip install git+git://github.com/ibab/root_pandas@2001dcc8675d19fce8b15f02f63aa47944eec3d6'
 
 RUN mkdir /etc/skel/.jupyter
-COPY docker/jupyter_notebook_config.py /etc/skel/.jupyter/
+COPY jupyter_notebook_config.py /etc/skel/.jupyter/
 
 # Disable the obnoxious RooFit banner
 RUN echo 'RooFit.Banner: 0' > /etc/skel/.rootrc
 
 WORKDIR /work
 
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 EXPOSE 8888
