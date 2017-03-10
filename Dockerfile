@@ -38,17 +38,19 @@ RUN apt-get install -y build-essential
 
 # Add gosu so that files written to a location mounted inside the image have
 # the same permissions as the user running `docker`
-ENV GOSU_VERSION 1.7
+ENV GOSU_VERSION 1.10
 RUN set -x \
     && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
-    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
-    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
+    && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
+    && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
+    && wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" \
     && export GNUPGHOME="$(mktemp -d)" \
     && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
     && gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
     && rm -r "$GNUPGHOME" /usr/local/bin/gosu.asc \
     && chmod +x /usr/local/bin/gosu \
-    && gosu nobody true
+    && gosu nobody true \
+    && apt-get purge -y --auto-remove ca-certificates wget
 
 RUN conda install -y -c asmeurer gcc=4.8.5
 RUN conda install -y -c chrisburr root=6
@@ -61,10 +63,19 @@ RUN sed -i -- 's/CONDA_ENV_PATH/CONDA_PREFIX/g' /opt/conda/etc/conda/activate.d/
 RUN bash -c 'source activate $CONDA_DEFAULT_ENV \
     && pip install matplotlib scipy jupyter \
     && pip install --no-binary root_numpy root_numpy \
-    && pip install git+git://github.com/ibab/root_pandas@2001dcc8675d19fce8b15f02f63aa47944eec3d6'
+    && pip install git+git://github.com/ibab/root_pandas@0cc031f5fa01ff3cfe78fbdb024aa7a464327d0f'
 
 RUN mkdir /etc/skel/.jupyter
 COPY jupyter_notebook_config.py /etc/skel/.jupyter/
+
+RUN mkdir -p /etc/skel/.ipython/profile_default
+COPY ipython_kernel_config.py /etc/skel/.ipython/profile_default/
+
+# Get a FontConfig error without this line:
+#   Fontconfig warning: ignoring C.UTF-8: not a valid language tag
+ENV LC_ALL=C
+ENV LANG=C
+ENV LANGUAGE=C
 
 # Disable the obnoxious RooFit banner
 RUN echo 'RooFit.Banner: 0' > /etc/skel/.rootrc
